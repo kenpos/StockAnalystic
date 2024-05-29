@@ -1,0 +1,5 @@
+/temp/*
+*.zip
+*.xlsx
+*.json
+/S[0-9]*_*/
