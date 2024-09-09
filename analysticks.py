@@ -6,7 +6,9 @@ import pandas as pd
 from pathlib import Path
 import glob
 import inspect
-
+from bs4 import BeautifulSoup
+import pandas as pd
+from io import StringIO
 
 
 from jpcrp030200 import jpcrp030200
@@ -45,10 +47,21 @@ def main():
     # print('潜在株式調整後１株当たり当期純利益',kubota.getDilutedEarningsPerShareSummaryOfBusinessResults())
     # print('自己資本比率',kubota.getEquityToAssetRatioSummaryOfBusinessResults())   
 
-    for m in inspect.getmembers(kubota):
-        print(m)
-    
+    members = inspect.getmembers(kubota, predicate=inspect.ismethod)
 
-    
+    for name, func in members:
+        if func.__code__.co_argcount == 1:  
+            result = func()  # 必要な引数があれば()内に指定
+            
+            soup = BeautifulSoup(result, 'lxml')
+            # 特定のテーブルを取得（例: 一つ目のテーブルを取得）
+            table = soup.find('table')
+            # テーブルが取得できているか確認
+            if table is None:
+                print(name,result)           
+            else:
+                df = pd.read_html(StringIO(str(table)))
+                print(df)
+            
 if __name__ == "__main__":
     main()
